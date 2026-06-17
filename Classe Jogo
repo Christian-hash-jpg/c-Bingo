@@ -1,0 +1,171 @@
+Código classe Jogo
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Trabalho_Bingo
+{
+    internal class Jogo
+    {
+        private Jogador[] jogadores;
+        private Jogador[] vencedores;
+        private int[] numerosSorteados = new int[75];
+        private int contadordeNumero;
+        private int posicaoRanking;
+        private int jogadoresAtivos;
+
+        public Jogo(int numeroDeJogadores)
+        {
+            this.jogadores = new Jogador[numeroDeJogadores];
+            this.contadordeNumero = 0;
+            vencedores = new Jogador[numeroDeJogadores];
+            posicaoRanking = 0;
+            jogadoresAtivos = numeroDeJogadores;
+        }
+
+        public int SortearNumero(Random r)
+        {
+            int n = r.Next(1, 76);
+            bool retorno = VerificarNumero(n);
+
+            while (retorno)
+            {
+                n = r.Next(1, 76);
+                retorno = VerificarNumero(n);
+            }
+
+            numerosSorteados[contadordeNumero] = n;
+            contadordeNumero++;
+
+            foreach (Jogador j in jogadores)
+            {
+                if (j != null)
+                {
+                    foreach (Cartelas c in j.Cartelas)
+                    {
+                        if (c != null)
+                        {
+                            c.MarcarNumero(n);
+                        }
+                    }
+                }
+            }
+
+            return n;
+        }
+
+        public bool VerificarNumero(int num)
+        {
+            bool result = false;
+
+            for (int i = 0; i < contadordeNumero; i++)
+            {
+                if (numerosSorteados[i] == num)
+                {
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        public void AdicionarJogador(Jogador j)
+        {
+            for (int i = 0; i < jogadores.Length; i++)
+            {
+                if (jogadores[i] == null)
+                {
+                    jogadores[i] = j;
+                    break;
+                }
+            }
+        }
+
+        public void ConferirBingo(int posicaoJogador, int numeroCartela, char tipo, int posicao)
+        {
+            bool bingo = false;
+
+            Cartelas cartela = jogadores[posicaoJogador].Cartelas[numeroCartela];
+
+            if (cartela == null)
+            {
+                Console.WriteLine("Cartela anulada.");
+                return;
+            }
+
+            if (tipo == 'L' || tipo == 'l')
+            {
+                bingo = cartela.VerificarLinha(posicao);
+            }
+            else if (tipo == 'C' || tipo == 'c')
+            {
+                bingo = cartela.VerificarColuna(posicao);
+            }
+
+            if (bingo)
+            {
+                Console.WriteLine("Bingo válido!");
+
+                vencedores[posicaoRanking] =
+                    jogadores[posicaoJogador];
+
+                posicaoRanking++;
+
+                jogadores[posicaoJogador] = null;
+
+                jogadoresAtivos--;
+
+                if (jogadoresAtivos == 1)
+                {
+                    for (int i = 0; i < jogadores.Length; i++)
+                    {
+                        if (jogadores[i] != null)
+                        {
+                            vencedores[posicaoRanking] =
+                                jogadores[i];
+
+                            posicaoRanking++;
+
+                            jogadores[i] = null;
+
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Bingo inválido!");
+
+                jogadores[posicaoJogador].Cartelas[numeroCartela] = null;
+
+                if (jogadores[posicaoJogador].QuantidadeCartelasAtivas() == 0)
+                {
+                    Console.WriteLine($"Jogador {jogadores[posicaoJogador].Nome} eliminado!");
+
+                    jogadores[posicaoJogador] = null;
+
+                    jogadoresAtivos--;
+                }
+            }
+        }
+
+        public void MostrarRanking()
+        {
+            for (int i = 0; i < posicaoRanking; i++)
+            {
+                if (vencedores[i] != null)
+                {
+                    Console.WriteLine($"{i + 1}º Lugar");
+                    Console.WriteLine($"Nome: {vencedores[i].Nome}");
+                    Console.WriteLine($"Idade: {vencedores[i].Idade}");
+                    Console.WriteLine($"Sexo: {vencedores[i].Sexo}");
+                    Console.WriteLine();
+                }
+            }
+        }
+    }
+}
