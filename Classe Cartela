@@ -1,0 +1,187 @@
+Código classe Cartela
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Trabalho_Bingo
+{
+    internal class Cartelas
+    {
+        private int[,] mat1 = new int[5, 5];
+        private bool[,] mat2 = new bool[5, 5];
+
+        public Cartelas()
+        {
+            mat1[2, 2] = -1;
+            mat2[2, 2] = true;
+        }
+
+        public int[,] Mat1
+        {
+            get { return mat1; }
+            set { mat1 = value; }
+        }
+
+        public bool[,] Mat2
+        {
+            get { return mat2; }
+            set { mat2 = value; }
+        }
+
+        public void PreencherCartela(Random r)
+        {
+
+            for (int i = 0; i < mat1.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat1.GetLength(1); j++)
+                {
+                    if (i != 2 || j != 2)
+                    {
+                        int n = 0;
+
+                        if (j == 0)
+                        {
+                            n = r.Next(1, 16);
+                        }
+
+                        if (j == 1)
+                        {
+                            n = r.Next(16, 31);
+                        }
+
+                        if (j == 2)
+                        {
+                            n = r.Next(31, 46);
+                        }
+
+                        if (j == 3)
+                        {
+                            n = r.Next(46, 61);
+                        }
+
+                        if (j == 4)
+                        {
+                            n = r.Next(61, 76);
+                        }
+
+                        if (VerificarMatriz(n))
+                        {
+                            j--;
+                        }
+                        else
+                        {
+                            mat1[i, j] = n;
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool VerificarMatriz(int n)
+        {
+            bool r = false;
+
+            for (int i = 0; i < mat1.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat1.GetLength(1); j++)
+                {
+                    if (mat1[i, j] == n)
+                    {
+                        r = true;
+                    }
+                }
+            }
+
+            return r;
+        }
+
+        public void MarcarNumero(int num)
+        {
+            for (int i = 0; i < mat1.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat1.GetLength(1); j++)
+                {
+                    if (mat1[i, j] == num)
+                    {
+                        mat2[i, j] = true;
+                    }
+                }
+            }
+        }
+
+        public bool VerificarLinha(int linha)
+        {
+            bool marcado = false;
+            int cont = 0;
+
+            for (int j = 0; j < mat2.GetLength(0); j++)
+            {
+                if (mat2[linha, j] == true)
+                {
+                    marcado = true;
+                    cont++;
+                }
+            }
+
+            if (cont == mat2.GetLength(0))
+            {
+                return marcado;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool VerificarColuna(int coluna)
+        {
+            int cont = 0;
+
+            for (int i = 0; i < mat2.GetLength(1); i++)
+            {
+                if (mat2[i, coluna])
+                {
+                    cont++;
+                }
+            }
+
+            return cont == mat2.GetLength(0);
+        }
+
+        public void ImprimirCartela()
+        {
+            for (int i = 0; i < mat1.GetLength(0); i++)
+            {
+                for (int j = 0; j < mat1.GetLength(1); j++)
+                {
+                    Console.Write($"{mat1[i, j]}\t");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        public bool VerificarBingo()
+        {
+            bool bingo = false;
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (VerificarLinha(i))
+                {
+                    bingo = true;
+                }
+
+                if (VerificarColuna(i))
+                {
+                    bingo = true;
+                }
+            }
+
+            return bingo;
+        }
+    }
+}
